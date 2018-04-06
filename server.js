@@ -1,5 +1,9 @@
 var http = require('http');
 var fs = require('fs');
+var ti = require('technicalindicators');
+
+const SMA = ti.SMA;
+
 
 http.createServer(function (req, res) {
     
