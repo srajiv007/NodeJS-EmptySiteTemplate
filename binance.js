@@ -97,7 +97,7 @@ function log(writer, readerInstance){
 }
 
 class BinanceReader{
-    constructor(){
+    constructor(filename){
         this.intervals = ["30m", "1h", "4h", "1d"];
         this.intervals = ["1h", "4h"];
         this.fileTickers = [];
@@ -106,7 +106,7 @@ class BinanceReader{
         this.indicators = {};
         this.lookbackPeriod = 0;
         this.previousPeriod = 3;
-        this.lastfilename = 'last_tickers';//uuid();
+        this.lastfilename = filename;
 
         this.last_tickers = fs.readFileSync('data/'+this.lastfilename+'.txt').toString().split('\n');
         this.last_tickers = _.without(this.last_tickers, '');

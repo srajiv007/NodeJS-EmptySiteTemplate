@@ -1,17 +1,17 @@
 var bnb = require('./binance');
 
-module.exports = {
-    output: function(writer){
-        let reader = new bnb.binance();
-        reader.getTopSymbols();
-        bnb.logger(writer, reader);
-    }
+function outputter(writer, fname){
+    let reader = new bnb.binance(fname);
+    reader.getTopSymbols();
+    bnb.logger(writer, reader);
 }
 
 function test(){
-    var reader = new bnb.binance();
-    reader.getTopSymbols();
-    bnb.logger({write: console.log, end: (x)=>console.log('done')}, reader);
+    outputter({write: console.log, end: (x)=>console.log('done')}, 'last_tickers');
 }
 
 //test();
+
+module.exports = {
+    output: outputter
+}
