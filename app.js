@@ -64,7 +64,7 @@ var log = function(writer){
             return;
         }else{
             console.log("Completed processing data for tickers. Filtering now...");
-            
+
             let tickers = Object.keys(indicators);
             tickers.forEach((k)=>{
                 if( _.isEmpty(indicators[k])){
@@ -109,14 +109,14 @@ var log = function(writer){
             
             //pick, gainers, losers
             
-            writer.write("\n===============\n");
+            writer.write("\n==== uptrend ======\n");
             writer.write(Table.print(tableIndicators));
-            writer.write("\n=== gainers === \n");
+            writer.write("\n=== newcomers (from previous run) === \n");
             _.difference(fileTickers, last_tickers).forEach((x)=>{
                 writer.write(x);
                 writer.write("\n");
             });
-            writer.write("=== losers === \n");
+            writer.write("=== losers (from previous run) === \n");
             _.difference(last_tickers, fileTickers).forEach((x)=>{
                 writer.write(x);
                 writer.write("\n");
