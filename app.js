@@ -63,6 +63,8 @@ var log = function(writer){
             setTimeout(log, 100, writer);
             return;
         }else{
+            console.log("Completed processing data for tickers. Filtering now...");
+            
             let tickers = Object.keys(indicators);
             tickers.forEach((k)=>{
                 if( _.isEmpty(indicators[k])){
@@ -241,7 +243,7 @@ var getData = async function(sym, interval, cb){
         });//end forEach
 
         //callback(getPrices("close", intervalData));
-        //console.log('data retrieved for symbol [' + sym + "] & interval (" + interval + ")");
+        console.log('data retrieved for symbol [' + sym + "] & interval (" + interval + ")");
         
         
     });//end sendRequest
