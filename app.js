@@ -27,6 +27,7 @@ var outputString = '';
 
 module.exports = {
     output: function(writer){
+        
         log(writer);
     }
 }
@@ -38,17 +39,17 @@ var execMap = {};
 let last_tickers = fs.readFileSync('data/last_tickers.txt').toString().split('\n');
 last_tickers = _.without(last_tickers, '');
 
-var log = function(logWriter){
+var log = function(writer){
     //wait while all indicators are collected
     if(Object.keys(execMap).length==0){
         
-        setTimeout(log, 100, logWriter);
+        setTimeout(log, 100, writer);
         return;
     }else{
         let sum = Object.values(execMap).reduce((a,b)=>a+b);
         if(sum>0){
             //wait for some more time
-            setTimeout(log, 100, logWriter);
+            setTimeout(log, 100, writer);
             return;
         }else{
             let tickers = Object.keys(indicators);
@@ -93,14 +94,21 @@ var log = function(logWriter){
             });
             file.end();
             
-            //Gainers and Losers
-            logWriter(Table.print(tableIndicators));
+            //pick, gainers, losers
             
-            logWriter("=== gainers === ");
-            logWriter(_.difference(fileTickers, last_tickers));
-            logWriter("=== losers === ");
-            logWriter(_.difference(last_tickers, fileTickers));
-            
+            writer.write("\n===============\n");
+            writer.write(Table.print(tableIndicators));
+            writer.write("\n=== gainers === \n");
+            _.difference(fileTickers, last_tickers).forEach((x)=>{
+                writer.write(x);
+                writer.write("\n");
+            });
+            writer.write("=== losers === \n");
+            _.difference(last_tickers, fileTickers).forEach((x)=>{
+                writer.write(x);
+                writer.write("\n");
+            });
+            writer.end();
         }
     }
     
@@ -328,42 +336,11 @@ function testNode(){
     console.log(_.difference([1,2],[1,2]));
 }
 
-//lookbackPeriod = 0;
 intervals = ["1h", "4h"];
 
 getTopSymbols(aggregate);
 //test();
 //testNode();
-
-
-//Testing request promise
-
-function doRequest(){
-    var url = process.env.BASE_URL+process.env.TICK_24HR;
-
-    var opts = {
-        url: url,
-        headers: {
-            'X-MBX-APIKEY': process.env.APIKEY
-        },
-        method: 'GET'
-    };
-
-    /*return new Promise((resolve, reject)=>{
-        console.log(resolve);
-        request.get(opt, (err, res, body)=>{
-            resolve(err, res, body);
-        });
-    });*/
-    return rp.get(opts);
-    
-}
-
-var test = function(res){console.log(res);}
-
-
-//doRequest().then(test);
-
 
 
 
