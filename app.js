@@ -20,13 +20,15 @@ const TICK_24HR = process.env.TICK_24HR;
 
 
 var intervals = ["30m", "1h", "4h", "1d"];
+intervals = ["1h", "4h"];
+
 var lookbackPeriod = 0;
 var previousPeriod = 3;
 var outputString = '';
 
 module.exports = {
     output: function(writer){
-        
+        getTopSymbols(aggregate);
         log(writer);
     }
 }
@@ -336,56 +338,3 @@ function aggregate(sym){
     //console.log(indicators);
 
 };//end aggregrate
-
-
-function test(){
-    execMap["IOSTBTC"]=2;
-    aggregate('IOSTBTC');
-}
-
-function testNode(){
-    console.log(_.difference([1,2],[1,2]));
-}
-
-//lookbackPeriod = 0;
-intervals = ["1h", "4h"];
-
-getTopSymbols(aggregate);
-//test();
-//testNode();
-
-
-//Testing request promise
-
-function doRequest(){
-    var url = process.env.BASE_URL+process.env.TICK_24HR;
-
-    var opts = {
-        url: url,
-        headers: {
-            'X-MBX-APIKEY': process.env.APIKEY
-        },
-        method: 'GET'
-    };
-
-    /*return new Promise((resolve, reject)=>{
-        console.log(resolve);
-        request.get(opt, (err, res, body)=>{
-            resolve(err, res, body);
-        });
-    });*/
-    return rp.get(opts);
-    
-}
-
-var test = function(res){console.log(res);}
-
-
-//doRequest().then(test);
-
-
-
-
-
-
-

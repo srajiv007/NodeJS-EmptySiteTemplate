@@ -4,8 +4,9 @@ var fs = require('fs');
 
 http.createServer(function (req, res) {
     let url = req.url;
-    if(url === '/check'){
-        res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Disposition': 'inline' });
+    if(url === '/list'){
+        res.writeHead(200, { 'Content-Type': 'text/plain', 
+                             'Content-Disposition': 'inline' });
         let app = require('./app');
         app.output(res);
     }else{
