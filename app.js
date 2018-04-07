@@ -14,4 +14,4 @@ function test(){
     bnb.logger({write: console.log, end: (x)=>console.log('done')}, reader);
 }
 
-test();
+//test();
