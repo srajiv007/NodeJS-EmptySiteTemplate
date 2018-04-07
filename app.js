@@ -292,8 +292,8 @@ function checkIndicators(values){
     if(
         values["ema-short"]>values["ema-mid"]
         && values["ema-mid"]>values["ema-long"]
-        && values["StochRSI"]>20
-        && values["StochRSI-"+previousPeriod]<=values["StochRSI"]
+        //&& values["StochRSI"]>20
+        //&& values["StochRSI-"+previousPeriod]<=values["StochRSI"]
     )
     {
         return true;
