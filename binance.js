@@ -7,6 +7,7 @@ var _ = require('underscore');
 var async = require('async');
 var rp = require('request-promise');
 var Table = require('easy-table');
+var uuid = require('uuid/v4');
 
 const SMA = ti.SMA;
 const EMA = ti.EMA;
@@ -68,7 +69,7 @@ function log(writer, readerInstance){
             let gainers = [];
             let losers = [];
 
-            let file = fs.createWriteStream('data/last_tickers.txt');
+            let file = fs.createWriteStream('data/'+readerInstance.lastfilename+'.txt');
             
             readerInstance.fileTickers.forEach((t)=>{
                 file.write(t+"\n");
@@ -105,8 +106,9 @@ class BinanceReader{
         this.indicators = {};
         this.lookbackPeriod = 0;
         this.previousPeriod = 3;
+        this.lastfilename = 'last_tickers';//uuid();
 
-        this.last_tickers = fs.readFileSync('data/last_tickers.txt').toString().split('\n');
+        this.last_tickers = fs.readFileSync('data/'+this.lastfilename+'.txt').toString().split('\n');
         this.last_tickers = _.without(this.last_tickers, '');
     }
 
