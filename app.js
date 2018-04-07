@@ -18,8 +18,7 @@ const BASE_URL = process.env.BASE_URL;
 const KLINES_EP = process.env.KLINES_EP;
 const TICK_24HR = process.env.TICK_24HR;
 
-var indicators = {};
-var ticks = [];
+
 var intervals = ["30m", "1h", "4h", "1d"];
 var lookbackPeriod = 0;
 var previousPeriod = 3;
@@ -35,9 +34,19 @@ module.exports = {
 var fileTickers = [];
 var tableIndicators = [];
 var execMap = {};
+var indicators = {};
+var ticks = [];
 
 let last_tickers = fs.readFileSync('data/last_tickers.txt').toString().split('\n');
 last_tickers = _.without(last_tickers, '');
+
+function reset(){
+    fileTickers = [];
+    tableIndicators = [];
+    execMap = {};
+    indicators = [];
+    ticks = [];
+}
 
 var log = function(writer){
     //wait while all indicators are collected
@@ -109,6 +118,8 @@ var log = function(writer){
                 writer.write("\n");
             });
             writer.end();
+
+            reset();
         }
     }
     
@@ -336,11 +347,42 @@ function testNode(){
     console.log(_.difference([1,2],[1,2]));
 }
 
+//lookbackPeriod = 0;
 intervals = ["1h", "4h"];
 
 getTopSymbols(aggregate);
 //test();
 //testNode();
+
+
+//Testing request promise
+
+function doRequest(){
+    var url = process.env.BASE_URL+process.env.TICK_24HR;
+
+    var opts = {
+        url: url,
+        headers: {
+            'X-MBX-APIKEY': process.env.APIKEY
+        },
+        method: 'GET'
+    };
+
+    /*return new Promise((resolve, reject)=>{
+        console.log(resolve);
+        request.get(opt, (err, res, body)=>{
+            resolve(err, res, body);
+        });
+    });*/
+    return rp.get(opts);
+    
+}
+
+var test = function(res){console.log(res);}
+
+
+//doRequest().then(test);
+
 
 
 
