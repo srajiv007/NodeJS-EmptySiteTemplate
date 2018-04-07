@@ -107,9 +107,13 @@ class BinanceReader{
         this.lookbackPeriod = 0;
         this.previousPeriod = 3;
         this.lastfilename = filename;
-
-        this.last_tickers = fs.readFileSync('data/'+this.lastfilename+'.txt').toString().split('\n');
-        this.last_tickers = _.without(this.last_tickers, '');
+        
+        let path = 'data/'+this.lastfilename+'.txt';
+        if(fs.existsSync(path)){
+            this.last_tickers = fs.readFileSync(path).toString().split('\n');
+            this.last_tickers = _.without(this.last_tickers, '');
+        }
+        
     }
 
 
