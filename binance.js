@@ -37,65 +37,6 @@ function log(writer, readerInstance){
 
             logger.filterData();
             logger.writeData();
-
-            /*let tickers = Object.keys(readerInstance.indicators);
-            tickers.forEach((k)=>{
-                if( _.isEmpty(readerInstance.indicators[k])){
-                    delete readerInstance.indicators[k];
-                }else{
-                    //check if all lower intervals satisfy the criteria
-                    
-                    let ints = Object.keys(readerInstance.indicators[k]);
-                    
-                    //all values in intervals are filtered
-                    if(!_.isEmpty(_.difference(readerInstance.intervals, ints))){
-                        //console.log("deleting " + k);
-                        delete readerInstance.indicators[k];
-                    }else{
-                        readerInstance.fileTickers.push(k);
-                        var obj = {};
-                        //obj['ticker']=k;
-                        //obj['indicators']=[];
-                        ints.forEach((i)=>{
-                            let x = {};
-                            x['ticker']=k;
-                            x['interval'] = i;
-                            x=_.extend(x, readerInstance.indicators[k][i]);
-                            //obj['indicators'].push(x);
-                            readerInstance.tableIndicators.push(x);
-                        });
-                        
-
-                    }
-                }
-            });//forEach
-            */
-
-            /*let gainers = [];
-            let losers = [];
-
-            let file = fs.createWriteStream('data/'+readerInstance.lastfilename+'.txt');
-            
-            readerInstance.fileTickers.forEach((t)=>{
-                file.write(t+"\n");
-            });
-            file.end();
-            
-            //pick, gainers, losers
-            
-            writer.write("\n==== uptrend ======\n");
-            writer.write(Table.print(readerInstance.tableIndicators));
-            writer.write("\n=== newcomers (from previous run) === \n");
-            _.uniq(_.difference(readerInstance.fileTickers, readerInstance.last_tickers)).forEach((x)=>{
-                writer.write(x);
-                writer.write("\n");
-            });
-            writer.write("=== losers (from previous run) === \n");
-            _.uniq(_.difference(readerInstance.last_tickers, readerInstance.fileTickers)).forEach((x)=>{
-                writer.write(x);
-                writer.write("\n");
-            });
-            writer.end();*/
         }
     }
     
