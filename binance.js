@@ -33,8 +33,12 @@ function log(writer, readerInstance){
             return;
         }else{
             console.log("Completed processing data for tickers. Filtering now...");
+            let logger = new BinanceLogger(readerInstance, writer);
 
-            let tickers = Object.keys(readerInstance.indicators);
+            logger.filterData();
+            logger.writeData();
+
+            /*let tickers = Object.keys(readerInstance.indicators);
             tickers.forEach((k)=>{
                 if( _.isEmpty(readerInstance.indicators[k])){
                     delete readerInstance.indicators[k];
@@ -65,8 +69,9 @@ function log(writer, readerInstance){
                     }
                 }
             });//forEach
+            */
 
-            let gainers = [];
+            /*let gainers = [];
             let losers = [];
 
             let file = fs.createWriteStream('data/'+readerInstance.lastfilename+'.txt');
@@ -90,10 +95,83 @@ function log(writer, readerInstance){
                 writer.write(x);
                 writer.write("\n");
             });
-            writer.end();
+            writer.end();*/
         }
     }
     
+}
+
+class BinanceLogger{
+    constructor(instance, writer){
+        this.readerInstance = instance;
+        this.writer = writer;
+    }
+
+    filterData(){
+        let readerInstance = this.readerInstance;
+
+        let tickers = Object.keys(readerInstance.indicators);
+        tickers.forEach((k)=>{
+            if( _.isEmpty(readerInstance.indicators[k])){
+                delete readerInstance.indicators[k];
+            }else{
+                //check if all lower intervals satisfy the criteria
+                
+                let ints = Object.keys(readerInstance.indicators[k]);
+                
+                //all values in intervals are filtered
+                if(!_.isEmpty(_.difference(readerInstance.intervals, ints))){
+                    //console.log("deleting " + k);
+                    delete readerInstance.indicators[k];
+                }else{
+                    readerInstance.fileTickers.push(k);
+                    var obj = {};
+                    //obj['ticker']=k;
+                    //obj['indicators']=[];
+                    ints.forEach((i)=>{
+                        let x = {};
+                        x['ticker']=k;
+                        x['interval'] = i;
+                        x=_.extend(x, readerInstance.indicators[k][i]);
+                        //obj['indicators'].push(x);
+                        readerInstance.tableIndicators.push(x);
+                    });
+                    
+
+                }
+            }
+        });//forEach
+    }
+
+    writeData(){
+        let gainers = [];
+        let losers = [];
+        let readerInstance = this.readerInstance;
+        let writer = this.writer;
+
+        let file = fs.createWriteStream('data/'+readerInstance.lastfilename+'.txt');
+        
+        readerInstance.fileTickers.forEach((t)=>{
+            file.write(t+"\n");
+        });
+        file.end();
+        
+        //pick, gainers, losers
+        
+        writer.write("\n==== uptrend ======\n");
+        writer.write(Table.print(readerInstance.tableIndicators));
+        writer.write("\n=== newcomers (from previous run) === \n");
+        _.uniq(_.difference(readerInstance.fileTickers, readerInstance.last_tickers)).forEach((x)=>{
+            writer.write(x);
+            writer.write("\n");
+        });
+        writer.write("=== losers (from previous run) === \n");
+        _.uniq(_.difference(readerInstance.last_tickers, readerInstance.fileTickers)).forEach((x)=>{
+            writer.write(x);
+            writer.write("\n");
+        });
+        writer.end();
+    }
 }
 
 class BinanceReader{
@@ -203,14 +281,14 @@ class BinanceReader{
             }
     }
 
-    async getData(sym, interval, cb)
+    getData(sym, interval, cb)
     {
 
         let intervalData= [];
         let klines_url = BASE_URL+KLINES_EP+'?symbol='+sym+"&interval="+interval;
         
 
-        await this.sendRequest(klines_url).then(function(body){
+        this.sendRequest(klines_url).then(function(body){
             let data = JSON.parse(body);
             //console.log(data.length);
             let close_prices = [];
@@ -239,36 +317,47 @@ class BinanceReader{
 
             //callback(getPrices("close", intervalData));
             console.log('data retrieved for symbol [' + sym + "] & interval (" + interval + ")");
-            
+            try{
+                cb(intervalData);
+            }catch(err){
+                console.log(err);
+            }
             
         });//end sendRequest
 
         //let prices = getPrices("close", intervalData);
         let prices = intervalData;
 
-        try{
+        /*try{
             cb(prices);
         }catch(err){
             console.log(err);
-        }
+        }*/
         
     }
 
-    async getTopSymbols(){
+    getTopSymbols(){
         let url = BASE_URL+TICK_24HR;
     
         let ticks = [];
 
-        let filter = function(body){
+        let filter = function(instance,body){
 
             let data = JSON.parse(body);
             //console.log(data.length);
-            ticks = data.filter(x=>parseInt(x["quoteVolume"])>=1000 
+            ticks = data.filter(x=>parseInt(x["quoteVolume"])>=1500 
                             && (x["symbol"].endsWith("BTC") || x["symbol"].endsWith("USDT")));
+            
+            ticks.forEach((t)=>{
+                instance.execMap[t["symbol"]] = instance.intervals.length;
+                instance.aggregate(t["symbol"]);
+            });
         };
 
-        await this.sendRequest(url).then(filter);
-        let promises= [];
+        this.sendRequest(url).then((body)=>{
+            filter(this, body);
+        });
+        /*let promises= [];
         ticks.forEach((t)=>{
             this.execMap[t["symbol"]] = this.intervals.length;
         });
@@ -276,7 +365,7 @@ class BinanceReader{
         ticks.forEach((t)=>{
             //promises.push(Promise.resolve(t["symbol"]));
             this.aggregate(t["symbol"]);
-        });
+        });*/
         
         //return promises;
     
@@ -297,7 +386,7 @@ class BinanceReader{
         return false;
     }
 
-    async aggregate(sym){
+    aggregate(sym){
         
         this.indicators[sym] = {};
 
