@@ -19,8 +19,11 @@ function parseCookies(request) {
 
 http.createServer(function (req, res) {
     let req_url = req.url;
-    
-    if(req_url === '/list'){
+    let q = url.parse(req_url, true).query;
+    console.log(q);
+    //console.log(req_url.startsWith('/list'));
+
+    if(req_url.startsWith('/list')){
         let fname = parseCookies(req)["filename"] || uuid();
         console.log(fname);
         
@@ -28,7 +31,7 @@ http.createServer(function (req, res) {
                              'Content-Disposition': 'inline',
                              'Set-Cookie': 'filename='+fname});
         
-        app.output(res, fname);
+        app.output(res, {'filename': fname});
     }else{
         res.write('Hello!');
         res.end();
