@@ -22,16 +22,16 @@ http.createServer(function (req, res) {
     let q = url.parse(req_url, true).query;
     console.log(q);
     //console.log(req_url.startsWith('/list'));
+    let ints = q['int'] ? q['int'].split(','): [];
+    console.log(ints);
 
     if(req_url.startsWith('/list')){
-        let fname = parseCookies(req)["filename"] || uuid();
-        console.log(fname);
-        
+        let fname = parseCookies(req)["filename"] || uuid();        
         res.writeHead(200, { 'Content-Type': 'text/plain', 
                              'Content-Disposition': 'inline',
                              'Set-Cookie': 'filename='+fname});
         
-        app.output(res, {'filename': fname});
+        app.output(res, {'filename': fname, 'intervals': ints});
     }else{
         res.write('Hello!');
         res.end();

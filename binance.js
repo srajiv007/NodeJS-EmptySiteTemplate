@@ -116,9 +116,12 @@ class BinanceLogger{
 }
 
 class BinanceReader{
-    constructor(filename){
-        this.intervals = ["30m", "1h", "4h", "1d"];
-        this.intervals = ["1h", "4h"];
+    constructor(params){
+        let filename = params['filename'];
+        let ints = params['intervals'];
+
+        this.intervals = _.isEmpty(ints)?["1h", "4h"]:ints;
+        //this.intervals = ["1h", "4h"];
         this.fileTickers = [];
         this.tableIndicators = [];
         this.execMap = {};
