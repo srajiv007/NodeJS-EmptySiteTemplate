@@ -6,12 +6,6 @@ function outputter(writer, fname){
     bnb.logger(writer, reader);
 }
 
-function test(){
-    outputter({write: console.log, end: (x)=>console.log('done')}, 'last_tickers');
-}
-
-//test();
-
 module.exports = {
     output: outputter
 }

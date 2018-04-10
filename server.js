@@ -2,6 +2,8 @@ var http = require('http');
 var fs = require('fs');
 var app = require('./app');
 var uuid = require('uuid/v4');
+var url = require('url');
+
 
 function parseCookies(request) {
     var list = {},
@@ -16,8 +18,9 @@ function parseCookies(request) {
 }
 
 http.createServer(function (req, res) {
-    let url = req.url;
-    if(url === '/list'){
+    let req_url = req.url;
+    
+    if(req_url === '/list'){
         let fname = parseCookies(req)["filename"] || uuid();
         console.log(fname);
         
