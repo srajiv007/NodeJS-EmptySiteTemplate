@@ -97,8 +97,8 @@ class BinanceLogger{
         let losers = [];
         let readerInstance = this.readerInstance;
         let writer = this.writer;
-
-        let file = fs.createWriteStream('data/'+readerInstance.lastfilename+'.txt');
+        let fappend = readerInstance.intervals.toString().replace(/,/g,'-');
+        let file = fs.createWriteStream('data/'+readerInstance.lastfilename+'-'+fappend+'.txt');
         
         readerInstance.fileTickers.forEach((t)=>{
             file.write(t+"\n");
@@ -137,9 +137,9 @@ class BinanceReader{
         this.lookbackPeriod = 0;
         this.previousPeriod = 3;
         this.lastfilename = filename;
+        let fappend = this.intervals.toString().replace(/,/g,'-');
         
-        
-        let path = 'data/'+this.lastfilename+'.txt';
+        let path = 'data/'+this.lastfilename+'-'+fappend+'.txt';
         if(fs.existsSync(path)){
             this.last_tickers = fs.readFileSync(path).toString().split('\n');
             this.last_tickers = _.without(this.last_tickers, '');
