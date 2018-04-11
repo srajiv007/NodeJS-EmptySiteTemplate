@@ -107,7 +107,7 @@ class BinanceLogger{
         
         //pick, gainers, losers
         
-        writer.write("\n==== uptrends ======\n");
+        writer.write("\n==== uptrends (sorted by volume) ======\n");
         this.printList(_.sortBy(readerInstance.fileTickers||[], function(x){
             return readerInstance.topTickers[x];
         }).reverse());
