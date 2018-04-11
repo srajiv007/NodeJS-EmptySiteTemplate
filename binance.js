@@ -108,7 +108,9 @@ class BinanceLogger{
         //pick, gainers, losers
         
         writer.write("\n==== uptrends ======\n");
-        this.printList(readerInstance.fileTickers);
+        this.printList(_.sortBy(readerInstance.fileTickers||[], function(x){
+            return readerInstance.topTickers[x];
+        }).reverse());
 
         writer.write("\n=== newcomers (from previous run) === \n");
         this.printList(_.uniq(_.difference(readerInstance.fileTickers, readerInstance.last_tickers)));
@@ -127,7 +129,7 @@ class BinanceReader{
         let filename = params['filename'];
         let ints = params['intervals'];
         this.emaintervals = {'ema-short': params['ema-short'], 'ema-mid': params['ema-mid'], 'ema-long': params['ema-long']}
-
+        this.topTickers = {};
         this.intervals = _.isEmpty(ints)?["1h", "4h"]:ints;
         //this.intervals = ["1h", "4h"];
         this.fileTickers = [];
@@ -310,11 +312,15 @@ class BinanceReader{
 
             let data = JSON.parse(body);
             //console.log(data.length);
-            ticks = data.filter(x=>parseInt(x["quoteVolume"])>=1500 
+            ticks = data.filter(x=>parseInt(x["quoteVolume"])>=2500 
                             && (x["symbol"].endsWith("BTC") || x["symbol"].endsWith("USDT")));
             
             ticks.forEach((t)=>{
+                instance.topTickers[t["symbol"]] = t["quoteVolume"];
+
                 instance.execMap[t["symbol"]] = instance.intervals.length;
+
+                //callback for technical indicators
                 instance.aggregate(t["symbol"]);
             });
         };
