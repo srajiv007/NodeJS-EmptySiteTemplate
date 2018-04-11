@@ -84,6 +84,14 @@ class BinanceLogger{
         });//forEach
     }
 
+    printList(list){
+        let writer = this.writer;
+        list.forEach((x)=>{
+            writer.write(x);
+            writer.write("\n");
+        });
+    }
+
     writeData(){
         let gainers = [];
         let losers = [];
@@ -100,20 +108,14 @@ class BinanceLogger{
         //pick, gainers, losers
         
         writer.write("\n==== uptrends ======\n");
-        readerInstance.fileTickers.forEach((x)=>{
-            writer.write(x);
-            writer.write("\n");
-        });
+        this.printList(readerInstance.fileTickers);
+
         writer.write("\n=== newcomers (from previous run) === \n");
-        _.uniq(_.difference(readerInstance.fileTickers, readerInstance.last_tickers)).forEach((x)=>{
-            writer.write(x);
-            writer.write("\n");
-        });
+        this.printList(_.uniq(_.difference(readerInstance.fileTickers, readerInstance.last_tickers)));
+
         writer.write("=== losers (from previous run) === \n");
-        _.uniq(_.difference(readerInstance.last_tickers, readerInstance.fileTickers)).forEach((x)=>{
-            writer.write(x);
-            writer.write("\n");
-        });
+        this.printList(_.uniq(_.difference(readerInstance.last_tickers, readerInstance.fileTickers)));
+
         writer.write("\n==== details ======\n");
         writer.write(Table.print(readerInstance.tableIndicators));
         writer.end();
