@@ -99,8 +99,11 @@ class BinanceLogger{
         
         //pick, gainers, losers
         
-        writer.write("\n==== uptrend ======\n");
-        writer.write(Table.print(readerInstance.tableIndicators));
+        writer.write("\n==== uptrends ======\n");
+        readerInstance.fileTickers.forEach((x)=>{
+            writer.write(x);
+            writer.write("\n");
+        });
         writer.write("\n=== newcomers (from previous run) === \n");
         _.uniq(_.difference(readerInstance.fileTickers, readerInstance.last_tickers)).forEach((x)=>{
             writer.write(x);
@@ -111,6 +114,8 @@ class BinanceLogger{
             writer.write(x);
             writer.write("\n");
         });
+        writer.write("\n==== details ======\n");
+        writer.write(Table.print(readerInstance.tableIndicators));
         writer.end();
     }
 }
