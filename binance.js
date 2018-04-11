@@ -191,6 +191,18 @@ class BinanceReader{
         return ema;
     }
 
+    getSma(prices, period, name)
+    {
+        // let key = "ema-"+period;
+        //console.log(data["prices"].length);
+
+        let d = SMA.calculate({period: period, values: prices})
+        let key = "sma-"+name;
+        let sma = {};
+        sma[key] = d[d.length-this.lookbackPeriod-1];
+        return sma;
+    }
+
     getStochRSI(prices, rsiPeriod, stochasticPeriod, kPeriod, dPeriod)
     {
         let input = {
