@@ -119,6 +119,7 @@ class BinanceReader{
     constructor(params){
         let filename = params['filename'];
         let ints = params['intervals'];
+        this.emaintervals = {'ema-short': params['ema-short'], 'ema-mid': params['ema-mid'], 'ema-long': params['ema-long']}
 
         this.intervals = _.isEmpty(ints)?["1h", "4h"]:ints;
         //this.intervals = ["1h", "4h"];
@@ -129,6 +130,7 @@ class BinanceReader{
         this.lookbackPeriod = 0;
         this.previousPeriod = 3;
         this.lastfilename = filename;
+        
         
         let path = 'data/'+this.lastfilename+'.txt';
         if(fs.existsSync(path)){
@@ -342,9 +344,13 @@ class BinanceReader{
             this.getData(sym, x, (prices)=>{
 
                     //1. EMA 
-                    let ema12 = this.getEma(_.pluck(prices, "close"), 7, "short");
-                    let ema26 = this.getEma(_.pluck(prices, "close"), 25, "mid");
-                    let ema100 = this.getEma(_.pluck(prices, "close"), 99, "long");
+                    let s = this.emaintervals['ema-short'] || 7;
+                    let m = this.emaintervals['ema-mid'] || 25;
+                    let l = this.emaintervals['ema-long'] || 99;
+
+                    let ema12 = this.getEma(_.pluck(prices, "close"), parseInt(s), "short");
+                    let ema26 = this.getEma(_.pluck(prices, "close"), parseInt(m), "mid");
+                    let ema100 = this.getEma(_.pluck(prices, "close"), parseInt(l), "long");
                     let stochRsi = this.getStochRSI(_.pluck(prices, "close"), 20, 14, 9, 9);
                     let wr = this.getWR(prices, 14);
 
