@@ -31,7 +31,8 @@ http.createServer(function (req, res) {
                 'intervals': ints, 
                 'ema-short': q['ema-short'],
                 'ema-mid': q['ema-mid'],
-                'ema-long': q['ema-long']};
+                'ema-long': q['ema-long'],
+                'volume': q['volume']};
 
     if(req_url.startsWith('/list')){
         res.writeHead(200, { 'Content-Type': 'text/plain', 

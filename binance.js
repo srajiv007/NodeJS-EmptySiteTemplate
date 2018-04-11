@@ -128,7 +128,10 @@ class BinanceReader{
     constructor(params){
         let filename = params['filename'];
         let ints = params['intervals'];
+        this.volume = params['volume'];
+
         this.emaintervals = {'ema-short': params['ema-short'], 'ema-mid': params['ema-mid'], 'ema-long': params['ema-long']}
+        
         this.topTickers = {};
         this.intervals = _.isEmpty(ints)?["1h", "4h"]:ints;
         //this.intervals = ["1h", "4h"];
@@ -312,7 +315,7 @@ class BinanceReader{
 
             let data = JSON.parse(body);
             //console.log(data.length);
-            ticks = data.filter(x=>parseInt(x["quoteVolume"])>=2500 
+            ticks = data.filter(x=>parseInt(x["quoteVolume"])>=instance.volume 
                             && (x["symbol"].endsWith("BTC") || x["symbol"].endsWith("USDT")));
             
             ticks.forEach((t)=>{
