@@ -3,6 +3,7 @@ var fs = require('fs');
 var app = require('./app');
 var uuid = require('uuid/v4');
 var url = require('url');
+var _ = require('underscore');
 
 
 function parseCookies(request) {
@@ -20,20 +21,28 @@ function parseCookies(request) {
 http.createServer(function (req, res) {
     let req_url = req.url;
     let q = url.parse(req_url, true).query;
+    let fname = parseCookies(req)["filename"] || uuid();
+    let ints = _.isEmpty(q['int']) ? []: q['int'];
+    ints = ints instanceof Array ? ints : ints.split(',');
+
     console.log(q);
-    //console.log(req_url.startsWith('/list'));
-    let ints = q['int'] ? q['int'].split(','): [];
-    console.log(ints);
+    let params = {
+                'filename': fname, 
+                'intervals': ints, 
+                'ema-short': q['ema-short'],
+                'ema-mid': q['ema-mid'],
+                'ema-long': q['ema-long']};
 
     if(req_url.startsWith('/list')){
-        let fname = parseCookies(req)["filename"] || uuid();        
         res.writeHead(200, { 'Content-Type': 'text/plain', 
                              'Content-Disposition': 'inline',
                              'Set-Cookie': 'filename='+fname});
-        
-        app.output(res, {'filename': fname, 'intervals': ints});
+                             
+        //let ints = q['int'] ? q['int'].split(','): [];
+        console.log(ints);
+        app.output(res, params);
     }else{
-        res.write('Hello!');
+        res.write(fs.readFileSync('HTMLPage.html'));
         res.end();
     }
     

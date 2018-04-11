@@ -1,11 +1,33 @@
 <!DOCTYPE html>
+<html>
+<body>
 
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <title></title>
-    </head>
-    <body>
-        Test from HTML !
-    </body>
+<form id="form1" action="/list">
+ <fieldset>
+  <legend>Intervals</legend>
+  1h:<input type="checkbox" value="1h" name="int">
+  4h:<input type="checkbox" value="4h" name="int">
+  1d:<input type="checkbox" value="1d" name="int">
+ </fieldset>
+ <fieldset>
+  <legend>Strategy</legend>
+  StochRSI<input type="checkbox" value="stochrsi" name="smethods">
+  WR<input type="checkbox" value="wr" name="smethods">
+  <br>
+  <fieldset>
+  	<legend>EMA</legend>
+    Short:<input type="text" name="ema-short"></input>
+    Mid:<input type="text" name="ema-mid"></input>
+    Long:<input type="text" name="ema-long"></input>
+  </fieldset>
+  <br><br>Note:
+  <p>StochRSI: uptrending</p>
+  <p>WR: greater than -50</p>
+  <p>EMA: cross over (7, 25, 100)</p>
+ </fieldset>
+</form>
+<br>
+<button type="submit" form="form1" value="Submit">Submit</button>
+
+</body>
 </html>
