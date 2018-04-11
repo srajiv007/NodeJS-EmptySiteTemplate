@@ -108,6 +108,8 @@ class BinanceLogger{
         //pick, gainers, losers
         
         writer.write("\n==== uptrends (sorted by volume) ======\n");
+        console.log(readerInstance.topTickers);
+
         this.printList(_.sortBy(readerInstance.fileTickers||[], function(x){
             return readerInstance.topTickers[x];
         }).reverse());
@@ -319,7 +321,7 @@ class BinanceReader{
                             && (x["symbol"].endsWith("BTC") || x["symbol"].endsWith("USDT")));
             
             ticks.forEach((t)=>{
-                instance.topTickers[t["symbol"]] = t["quoteVolume"];
+                instance.topTickers[t["symbol"]] = parseFloat(t["quoteVolume"]);
 
                 instance.execMap[t["symbol"]] = instance.intervals.length;
 
