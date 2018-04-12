@@ -104,7 +104,7 @@ class BinanceLogger{
         let readerInstance = this.readerInstance;
         let writer = this.writer;
         let fappend = readerInstance.intervals.toString().replace(/,/g,'-');
-        let file = fs.createWriteStream('data/'+readerInstance.lastfilename+'-'+fappend+'.txt');
+        let file = fs.createWriteStream('data/'+readerInstance.lastfilename+'-'+readerInstance.maket+'-'+fappend+'.txt');
         
         readerInstance.fileTickers.forEach((t)=>{
             file.write(t+"\n");
@@ -151,7 +151,8 @@ class BinanceReader{
         this.market = params['market'];
         this.sort = params['sort'] || ['vol'];
         this.priceChange = parseFloat(params['priceChange']||'0.0');
-
+        this.wrvalues = {'value': parseFloat(params['wr-cutoff'])||-50, 'period': parseInt(params['wr-period'])||14};
+        this.methods = params['methods'];
         this.emaintervals = {'ema-short': params['ema-short'], 'ema-mid': params['ema-mid'], 'ema-long': params['ema-long']}
         
         this.topTickers = {};
@@ -166,16 +167,13 @@ class BinanceReader{
         this.lastfilename = filename;
         let fappend = this.intervals.toString().replace(/,/g,'-');
         
-        let path = 'data/'+this.lastfilename+'-'+fappend+'.txt';
+        let path = 'data/'+this.lastfilename+'-'+this.market+'-'+fappend+'.txt';
         if(fs.existsSync(path)){
             this.last_tickers = fs.readFileSync(path).toString().split('\n');
             this.last_tickers = _.without(this.last_tickers, '');
         }
         
     }
-
-
-    
 
     sendRequest(url){
         var opts = {
@@ -208,9 +206,6 @@ class BinanceReader{
     
     getEma(prices, period, name)
     {
-        // let key = "ema-"+period;
-        //console.log(data["prices"].length);
-
         let d = EMA.calculate({period: period, values: prices})
         let key = "ema-"+name;
         let ema = {};
@@ -220,9 +215,6 @@ class BinanceReader{
 
     getSma(prices, period, name)
     {
-        // let key = "ema-"+period;
-        //console.log(data["prices"].length);
-
         let d = SMA.calculate({period: period, values: prices})
         let key = "sma-"+name;
         let sma = {};
@@ -279,8 +271,7 @@ class BinanceReader{
         let intervalData= [];
         let klines_url = BASE_URL+KLINES_EP+'?symbol='+sym+"&interval="+interval;
         
-
-        this.sendRequest(klines_url).then(function(body){
+        var process = function(body){
             let data = JSON.parse(body);
             //console.log(data.length);
             let close_prices = [];
@@ -314,18 +305,13 @@ class BinanceReader{
             }catch(err){
                 console.log(err);
             }
-            
+        };
+
+        this.sendRequest(klines_url).then(function(body){
+            process(body);
         });//end sendRequest
 
-        //let prices = getPrices("close", intervalData);
         let prices = intervalData;
-
-        /*try{
-            cb(prices);
-        }catch(err){
-            console.log(err);
-        }*/
-        
     }
 
     getTopSymbols(){
@@ -333,54 +319,43 @@ class BinanceReader{
     
         let ticks = [];
 
-        let filter = function(instance,body){
-
+        this.sendRequest(url).then((body)=>{
+            //filter(this, body);
             let data = JSON.parse(body);
             //console.log(data.length);
-            ticks = data.filter(x=>parseInt(x["quoteVolume"])>=instance.volume 
-                            && (x["symbol"].endsWith(instance.market)) && (parseFloat(x["priceChangePercent"])>=instance.priceChange));
+            ticks = data.filter(x=>parseInt(x["quoteVolume"])>=this.volume 
+                            && (x["symbol"].endsWith(this.market)) && (parseFloat(x["priceChangePercent"])>=this.priceChange));
             
             ticks.forEach((t)=>{
-                instance.topTickers[t["symbol"]] = {
+                this.topTickers[t["symbol"]] = {
                                                     "volume": parseFloat(t["quoteVolume"]),
                                                     "priceChange": parseFloat(t["priceChangePercent"])
                                                 };
 
-                instance.execMap[t["symbol"]] = instance.intervals.length;
+                this.execMap[t["symbol"]] = this.intervals.length;
 
                 //callback for technical indicators
-                instance.aggregate(t["symbol"]);
+                this.aggregate(t["symbol"]);
             });
-        };
-
-        this.sendRequest(url).then((body)=>{
-            filter(this, body);
         });
-        /*let promises= [];
-        ticks.forEach((t)=>{
-            this.execMap[t["symbol"]] = this.intervals.length;
-        });
-
-        ticks.forEach((t)=>{
-            //promises.push(Promise.resolve(t["symbol"]));
-            this.aggregate(t["symbol"]);
-        });*/
-        
-        //return promises;
     
     }
 
 
     checkIndicators(values){
         //if ema 12 cross over ema 100
+        let stochrsi = _.contains(this.methods, 'stochrsi');
+        let wr = _.contains(this.methods, 'wr');
+        let wrValue = values['WR%'];
+        let stochcheck = values["StochRSI"]>20 && values["StochRSI-"+this.previousPeriod]<=values["StochRSI"];
+        let wrcheck = wrValue>=this.wrvalues['value'];
+        
         if(
             values["ema-short"]>values["ema-mid"]
             && values["ema-mid"]>values["ema-long"]
-            //&& values["StochRSI"]>20
-            //&& values["StochRSI-"+previousPeriod]<=values["StochRSI"]
         )
         {
-            return true;
+            return true && (stochrsi ? stochcheck : true) && (wr ? wrcheck: true);
         }
         return false;
     }
@@ -405,7 +380,7 @@ class BinanceReader{
                     let ema26 = this.getEma(_.pluck(prices, "close"), parseInt(m), "mid");
                     let ema100 = this.getEma(_.pluck(prices, "close"), parseInt(l), "long");
                     let stochRsi = this.getStochRSI(_.pluck(prices, "close"), 20, 14, 9, 9);
-                    let wr = this.getWR(prices, 14);
+                    let wr = this.getWR(prices, this.wrvalues['period']);
 
                     //console.log(Object.keys(stochRsi));
                     let values = _.extend(ema12, ema26, ema100, stochRsi, wr);

@@ -25,8 +25,14 @@
     </fieldset>
     <fieldset>
         <legend>Strategy</legend>
-        StochRSI<input type="checkbox" value="stochrsi" name="smethods">
-        WR<input type="checkbox" value="wr" name="smethods">
+        StochRSI<input type="checkbox" value="stochrsi" name="methods">
+        WR<input type="checkbox" value="wr" name="methods">
+        <br>
+        <fieldset>
+                <legend>WR</legend>
+                Period:<input type="text" name="wr-period" value="14"></input>
+                Cutoff:<input type="text" name="wr-cutoff" value="-50"></input>
+        </fieldset>
         <br>
         <fieldset>
             <legend>EMA</legend>

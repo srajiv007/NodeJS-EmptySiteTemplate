@@ -26,6 +26,8 @@ http.createServer(function (req, res) {
     ints = ints instanceof Array ? ints : ints.split(',');
     let sort = q['sort'] || [];
     sort = sort instanceof Array ? sort: sort.split(',');
+    let methods = q['methods'] || [];
+    methods = methods instanceof Array ? methods : methods.split(',');
 
     console.log(q);
     let params = {
@@ -37,7 +39,10 @@ http.createServer(function (req, res) {
                     'volume': q['volume'],
                     'market': q['market'],
                     'sort': sort,
-                    'priceChange': q['valuechange']
+                    'priceChange': q['valuechange'],
+                    'wr-cutoff': q['wr-cutoff'],
+                    'wr-period': q['wr-period'],
+                    'methods': methods
                 };
 
     if(req_url.startsWith('/list')){
