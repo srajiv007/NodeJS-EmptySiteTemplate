@@ -18,6 +18,12 @@ const BASE_URL = process.env.BASE_URL;
 const KLINES_EP = process.env.KLINES_EP;
 const TICK_24HR = process.env.TICK_24HR;
 
+function sortBy(list, map, key){
+    return _.sortBy(list, function(x){
+        return map[x][key];
+    });
+}
+
 
 function log(writer, readerInstance){
     //wait while all indicators are collected
@@ -87,7 +93,7 @@ class BinanceLogger{
     printList(list){
         let writer = this.writer;
         list.forEach((x)=>{
-            writer.write(x);
+            writer.write(x.toString().replace(/,/g,'   '));
             writer.write("\n");
         });
     }
@@ -107,12 +113,23 @@ class BinanceLogger{
         
         //pick, gainers, losers
         
-        writer.write("\n==== uptrends (sorted by volume) ======\n");
+        writer.write("\n==== uptrends (sorted) ======\n");
         console.log(readerInstance.topTickers);
 
-        this.printList(_.sortBy(readerInstance.fileTickers||[], function(x){
-            return readerInstance.topTickers[x];
-        }).reverse());
+        let finalTickers = readerInstance.fileTickers||[];
+
+        if(_.contains(readerInstance.sort, "vol")){
+            finalTickers = sortBy(finalTickers, readerInstance.topTickers, "volume");
+        }
+
+        if(_.contains(readerInstance.sort, "price")){
+            finalTickers = sortBy(finalTickers, readerInstance.topTickers, "priceChange");
+        }
+
+        finalTickers = finalTickers.reverse();
+        this.printList(_.zip(finalTickers, _.map(finalTickers, function(x){
+            return readerInstance.topTickers[x]["priceChange"]+"%";
+        })));
 
         writer.write("\n=== newcomers (from previous run) === \n");
         this.printList(_.uniq(_.difference(readerInstance.fileTickers, readerInstance.last_tickers)));
@@ -132,6 +149,7 @@ class BinanceReader{
         let ints = params['intervals'];
         this.volume = params['volume'];
         this.market = params['market'];
+        this.sort = params['sort'] || ['vol'];
 
         this.emaintervals = {'ema-short': params['ema-short'], 'ema-mid': params['ema-mid'], 'ema-long': params['ema-long']}
         
@@ -322,7 +340,10 @@ class BinanceReader{
                             && (x["symbol"].endsWith(instance.market)));
             
             ticks.forEach((t)=>{
-                instance.topTickers[t["symbol"]] = parseFloat(t["quoteVolume"]);
+                instance.topTickers[t["symbol"]] = {
+                                                    "volume": parseFloat(t["quoteVolume"]),
+                                                    "priceChange": parseFloat(t["priceChangePercent"])
+                                                };
 
                 instance.execMap[t["symbol"]] = instance.intervals.length;
 

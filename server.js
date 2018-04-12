@@ -24,16 +24,21 @@ http.createServer(function (req, res) {
     let fname = parseCookies(req)["filename"] || uuid();
     let ints = _.isEmpty(q['int']) ? []: q['int'];
     ints = ints instanceof Array ? ints : ints.split(',');
+    let sort = q['sort'] || [];
+    sort = sort instanceof Array ? sort: sort.split(',');
 
     console.log(q);
     let params = {
-                'filename': fname, 
-                'intervals': ints, 
-                'ema-short': q['ema-short'],
-                'ema-mid': q['ema-mid'],
-                'ema-long': q['ema-long'],
-                'volume': q['volume'],
-                'market': q['market']};
+                    'filename': fname, 
+                    'intervals': ints, 
+                    'ema-short': q['ema-short'],
+                    'ema-mid': q['ema-mid'],
+                    'ema-long': q['ema-long'],
+                    'volume': q['volume'],
+                    'market': q['market'],
+                    'sort': sort,
+                    'priceChange': q['valuechange']
+                };
 
     if(req_url.startsWith('/list')){
         res.writeHead(200, { 'Content-Type': 'text/plain', 

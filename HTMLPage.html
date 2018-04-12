@@ -4,7 +4,9 @@
 
 <form id="form1" action="/list">
 
-    Volume:<input type="text" name="volume" value="2500"></input>
+    Volume:<input type="text" name="volume" value="2500"></input><br><br>
+    24hr change(% value)<input type="text" name="valuechange"></input>
+    <br>
     <br>
     <fieldset>
         <legend>Markets</legend>
@@ -14,29 +16,34 @@
             <option value="ETH">ETH</option>
             <option value="BNB">BNB</option>
           </select>
-       </fieldset>
- <fieldset>
-  <legend>Intervals</legend>
-  1h:<input type="checkbox" value="1h" name="int">
-  4h:<input type="checkbox" value="4h" name="int">
-  1d:<input type="checkbox" value="1d" name="int">
- </fieldset>
- <fieldset>
-  <legend>Strategy</legend>
-  StochRSI<input type="checkbox" value="stochrsi" name="smethods">
-  WR<input type="checkbox" value="wr" name="smethods">
-  <br>
-  <fieldset>
-  	<legend>EMA</legend>
-    Short:<input type="text" name="ema-short" value="7"></input>
-    Mid:<input type="text" name="ema-mid" value="25"></input>
-    Long:<input type="text" name="ema-long" value="100"></input>
-  </fieldset>
-  <br><br>Note:
-  <p>StochRSI: uptrending</p>
-  <p>WR: greater than -50</p>
-  <p>EMA: cross over * default (7, 25, 100) * </p>
- </fieldset>
+    </fieldset>
+    <fieldset>
+        <legend>Intervals</legend>
+        1h:<input type="checkbox" value="1h" name="int">
+        4h:<input type="checkbox" value="4h" name="int">
+        1d:<input type="checkbox" value="1d" name="int">
+    </fieldset>
+    <fieldset>
+        <legend>Strategy</legend>
+        StochRSI<input type="checkbox" value="stochrsi" name="smethods">
+        WR<input type="checkbox" value="wr" name="smethods">
+        <br>
+        <fieldset>
+            <legend>EMA</legend>
+            Short:<input type="text" name="ema-short" value="7"></input>
+            Mid:<input type="text" name="ema-mid" value="25"></input>
+            Long:<input type="text" name="ema-long" value="100"></input>
+        </fieldset>
+        <br><br>Note:
+        <p>StochRSI: uptrending</p>
+        <p>WR: greater than -50</p>
+        <p>EMA: cross over * default (7, 25, 100) * </p>
+    </fieldset>
+    <fieldset>
+        <legend>Output (sort by)</legend>
+        volume: <input type="checkbox" value="vol" name="sort" checked="true"><br>
+        24hr change(%): <input type="checkbox" value="price" name="sort"><br>
+    </fieldset>
 </form>
 <br>
 <button type="submit" form="form1" value="Submit">Submit</button>
