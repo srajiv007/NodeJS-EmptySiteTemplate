@@ -104,7 +104,7 @@ class BinanceLogger{
         let readerInstance = this.readerInstance;
         let writer = this.writer;
         let fappend = readerInstance.intervals.toString().replace(/,/g,'-');
-        let file = fs.createWriteStream('data/'+readerInstance.lastfilename+'-'+readerInstance.maket+'-'+fappend+'.txt');
+        let file = fs.createWriteStream('data/'+readerInstance.lastfilename+'-'+readerInstance.market+'-'+fappend+'.txt');
         
         readerInstance.fileTickers.forEach((t)=>{
             file.write(t+"\n");
