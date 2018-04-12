@@ -41,8 +41,10 @@
     </fieldset>
     <fieldset>
         <legend>Output (sort by)</legend>
-        volume: <input type="checkbox" value="vol" name="sort" checked="true"><br>
-        24hr change(%): <input type="checkbox" value="price" name="sort"><br>
+            <select name="sort">
+                <option value="vol">Volume</option>
+                <option value="price">24hr % change</option>    
+            </select>
     </fieldset>
 </form>
 <br>
