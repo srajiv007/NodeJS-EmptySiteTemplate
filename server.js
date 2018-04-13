@@ -42,6 +42,9 @@ http.createServer(function (req, res) {
                     'priceChange': q['valuechange'],
                     'wr-cutoff': q['wr-cutoff'],
                     'wr-period': q['wr-period'],
+                    'macd-slow': q['macd-slow'],
+                    'macd-fast': q['macd-fast'],
+                    'macd-signal': q['macd-signal'],
                     'methods': methods
                 };
 

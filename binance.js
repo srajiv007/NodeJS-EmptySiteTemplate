@@ -9,8 +9,10 @@ var rp = require('request-promise');
 var Table = require('easy-table');
 var uuid = require('uuid/v4');
 
+
 const SMA = ti.SMA;
 const EMA = ti.EMA;
+const MACD = ti.MACD;
 const STOCH_RSI = ti.StochasticRSI;
 const WilliamsR = ti.WilliamsR;
 
@@ -153,8 +155,10 @@ class BinanceReader{
         this.priceChange = parseFloat(params['priceChange']||'0.0');
         this.wrvalues = {'value': parseFloat(params['wr-cutoff'])||-50, 'period': parseInt(params['wr-period'])||14};
         this.methods = params['methods'];
-        this.emaintervals = {'ema-short': params['ema-short'], 'ema-mid': params['ema-mid'], 'ema-long': params['ema-long']}
-        
+        this.emaintervals = {'ema-short': params['ema-short'], 'ema-mid': params['ema-mid'], 'ema-long': params['ema-long']};
+        this.macd = {'macd-slow': params['macd-slow']||26,'macd-fast': params['macd-fast']||12,'macd-signal': params['macd-signal']||9};
+        console.log(this.macd);
+
         this.topTickers = {};
         this.intervals = _.isEmpty(ints)?["1h", "4h"]:ints;
         //this.intervals = ["1h", "4h"];
@@ -188,6 +192,22 @@ class BinanceReader{
     }
 
     /** INDICATORS FUNCTIONS (START) **/
+    getMACD(prices, slowPeriod, fastPeriod, signalPeriod)
+    {
+        let input = {
+            values: _.pluck(prices, "close"),
+            slowPeriod: slowPeriod,
+            fastPeriod: fastPeriod,
+            signalPeriod: signalPeriod,
+            SimpleMAOscillator: false,
+            SimpleMASignal    : false
+        };
+
+        let d = MACD.calculate(input);
+        console.log(_.last(d));
+        return {"MACD": _.last(d)};
+    }
+
     getWR(prices, period){
         
         
@@ -206,7 +226,8 @@ class BinanceReader{
     
     getEma(prices, period, name)
     {
-        let d = EMA.calculate({period: period, values: prices})
+        let values = _.pluck(prices, "close");
+        let d = EMA.calculate({period: period, values: values});
         let key = "ema-"+name;
         let ema = {};
         ema[key] = d[d.length-this.lookbackPeriod-1];
@@ -215,7 +236,8 @@ class BinanceReader{
 
     getSma(prices, period, name)
     {
-        let d = SMA.calculate({period: period, values: prices})
+        let values = _.pluck(prices, "close");
+        let d = SMA.calculate({period: period, values: values});
         let key = "sma-"+name;
         let sma = {};
         sma[key] = d[d.length-this.lookbackPeriod-1];
@@ -346,16 +368,23 @@ class BinanceReader{
         //if ema 12 cross over ema 100
         let stochrsi = _.contains(this.methods, 'stochrsi');
         let wr = _.contains(this.methods, 'wr');
+        let mcd = _.contains(this.methods, 'macd');
+
         let wrValue = values['WR%'];
         let stochcheck = values["StochRSI"]>20 && values["StochRSI-"+this.previousPeriod]<=values["StochRSI"];
         let wrcheck = wrValue>=this.wrvalues['value'];
+        let macdSignal = values["MACD"]["signal"];
+        let macdValue = values["MACD"]["MACD"];
         
         if(
             values["ema-short"]>values["ema-mid"]
             && values["ema-mid"]>values["ema-long"]
         )
         {
-            return true && (stochrsi ? stochcheck : true) && (wr ? wrcheck: true);
+            return true 
+                    && (stochrsi ? stochcheck : true) 
+                    && (wr ? wrcheck: true)
+                    && (mcd ? macdSignal > 0 : true);
         }
         return false;
     }
@@ -376,21 +405,24 @@ class BinanceReader{
                     let m = this.emaintervals['ema-mid'] || 25;
                     let l = this.emaintervals['ema-long'] || 99;
 
-                    let ema12 = this.getEma(_.pluck(prices, "close"), parseInt(s), "short");
-                    let ema26 = this.getEma(_.pluck(prices, "close"), parseInt(m), "mid");
-                    let ema100 = this.getEma(_.pluck(prices, "close"), parseInt(l), "long");
+                    let ema12 = this.getEma(prices, parseInt(s), "short");
+                    let ema26 = this.getEma(prices, parseInt(m), "mid");
+                    let ema100 = this.getEma(prices, parseInt(l), "long");
                     let stochRsi = this.getStochRSI(_.pluck(prices, "close"), 20, 14, 9, 9);
                     let wr = this.getWR(prices, this.wrvalues['period']);
+                    let macd = this.getMACD(prices, this.macd["macd-slow"], this.macd["macd-fast"], this.macd["macd-signal"]);
 
                     //console.log(Object.keys(stochRsi));
-                    let values = _.extend(ema12, ema26, ema100, stochRsi, wr);
+                    let values = _.extend(ema12, ema26, ema100, stochRsi, wr, macd);
                     //console.log(values);
 
                     this.execMap[sym] = this.execMap[sym]-1;
                     
                     if(this.checkIndicators(values)){
                         //add to the object, only if the criteria passes
-                        this.indicators[sym][x] = values;
+                        let v = _.omit(values, "MACD", "ema-short", "ema-mid", "ema-long");//remove MACD
+                        let w = _.pick(values, "MACD")["MACD"]; //get signal 
+                        this.indicators[sym][x] = _.extend(v, _.pick(w, "MACD"));//display only MACD value
                     }else{
                         delete this.indicators[sym][x];
                     }
