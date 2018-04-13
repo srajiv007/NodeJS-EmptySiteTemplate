@@ -2,19 +2,12 @@ require('dotenv').config();
 
 var fs = require('fs');
 var request = require('request');
-var ti = require('technicalindicators');
 var _ = require('underscore');
 var async = require('async');
 var rp = require('request-promise');
 var Table = require('easy-table');
 var uuid = require('uuid/v4');
-
-
-const SMA = ti.SMA;
-const EMA = ti.EMA;
-const MACD = ti.MACD;
-const STOCH_RSI = ti.StochasticRSI;
-const WilliamsR = ti.WilliamsR;
+var calc = require('./calculator').Calc;
 
 const BASE_URL = process.env.BASE_URL;
 const KLINES_EP = process.env.KLINES_EP;
@@ -191,89 +184,6 @@ class BinanceReader{
         return rp.get(opts);
     }
 
-    /** INDICATORS FUNCTIONS (START) **/
-    getMACD(prices, slowPeriod, fastPeriod, signalPeriod)
-    {
-        let input = {
-            values: _.pluck(prices, "close"),
-            slowPeriod: slowPeriod,
-            fastPeriod: fastPeriod,
-            signalPeriod: signalPeriod,
-            SimpleMAOscillator: false,
-            SimpleMASignal    : false
-        };
-
-        let d = MACD.calculate(input);
-        console.log(_.last(d));
-        return {"MACD": _.last(d)};
-    }
-
-    getWR(prices, period){
-        
-        
-        let input = {
-            high: _.pluck(prices, "high"),
-            low:  _.pluck(prices, "low"),
-            close:  _.pluck(prices, "close"),
-            period: period
-        };
-        //console.log(input);
-
-        let d = WilliamsR.calculate(input);
-
-        return {"WR%" : _.last(d) };
-    }
-    
-    getEma(prices, period, name)
-    {
-        let values = _.pluck(prices, "close");
-        let d = EMA.calculate({period: period, values: values});
-        let key = "ema-"+name;
-        let ema = {};
-        ema[key] = d[d.length-this.lookbackPeriod-1];
-        return ema;
-    }
-
-    getSma(prices, period, name)
-    {
-        let values = _.pluck(prices, "close");
-        let d = SMA.calculate({period: period, values: values});
-        let key = "sma-"+name;
-        let sma = {};
-        sma[key] = d[d.length-this.lookbackPeriod-1];
-        return sma;
-    }
-
-    getStochRSI(prices, rsiPeriod, stochasticPeriod, kPeriod, dPeriod)
-    {
-        let input = {
-            values: prices,
-            rsiPeriod: rsiPeriod, 
-            stochasticPeriod: stochasticPeriod,
-            kPeriod: kPeriod,
-            dPeriod: dPeriod
-        }
-
-        let values = STOCH_RSI.calculate(input);
-        //console.log("data length = " +values.length);
-        let d = values[values.length-this.lookbackPeriod-1];
-        
-        let d5 = values[values.length-this.lookbackPeriod-this.previousPeriod-1];
-        let k = "StochRSI-"+this.previousPeriod;
-        //console.log(values);
-        if(d){
-            let obj = { "StochRSI" :  d.stochRSI } ;
-            obj[k] = d5.stochRSI;
-            return obj;
-        }else{
-            let obj = { "StochRSI" :  -1 } ;
-            obj[k] = -1;
-            return obj;
-        }
-        
-    }
-    /*** INDICATOR FUNCTIONS (END) ***/
-
     getPrices(key, data)
     {
         let prices = [];
@@ -405,16 +315,16 @@ class BinanceReader{
                     let m = this.emaintervals['ema-mid'] || 25;
                     let l = this.emaintervals['ema-long'] || 99;
 
-                    let ema12 = this.getEma(prices, parseInt(s), "short");
-                    let ema26 = this.getEma(prices, parseInt(m), "mid");
-                    let ema100 = this.getEma(prices, parseInt(l), "long");
-                    let stochRsi = this.getStochRSI(_.pluck(prices, "close"), 20, 14, 9, 9);
-                    let wr = this.getWR(prices, this.wrvalues['period']);
-                    let macd = this.getMACD(prices, this.macd["macd-slow"], this.macd["macd-fast"], this.macd["macd-signal"]);
+                    let ema12 = calc.getEma(prices, parseInt(s), "short");
+                    let ema26 = calc.getEma(prices, parseInt(m), "mid");
+                    let ema100 = calc.getEma(prices, parseInt(l), "long");
+                    let stochRsi = calc.getStochRSI(prices, 20, 14, 9, 9, 3);
+                    let wr = calc.getWR(prices, this.wrvalues['period']);
+                    let macd = calc.getMACD(prices, this.macd["macd-slow"], this.macd["macd-fast"], this.macd["macd-signal"]);
 
                     //console.log(Object.keys(stochRsi));
                     let values = _.extend(ema12, ema26, ema100, stochRsi, wr, macd);
-                    //console.log(values);
+                    console.log(values);
 
                     this.execMap[sym] = this.execMap[sym]-1;
                     
