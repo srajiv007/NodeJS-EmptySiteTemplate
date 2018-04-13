@@ -7,6 +7,7 @@ var async = require('async');
 var rp = require('request-promise');
 var Table = require('easy-table');
 var uuid = require('uuid/v4');
+var empty = require('is-empty');
 var calc = require('./calculator').Calc;
 
 const BASE_URL = process.env.BASE_URL;
@@ -246,18 +247,27 @@ class BinanceReader{
         let prices = intervalData;
     }
 
-    getTopSymbols(){
+    getSymbols(sym)
+    {
         let url = BASE_URL+TICK_24HR;
-    
         let ticks = [];
+
+        if(!empty(sym)){
+            url = url + '?symbol=' + sym;
+            ticks.push(sym);
+        }
+
+        console.log(url);
 
         this.sendRequest(url).then((body)=>{
             //filter(this, body);
             let data = JSON.parse(body);
             //console.log(data.length);
-            ticks = data.filter(x=>parseInt(x["quoteVolume"])>=this.volume 
+            if(empty(sym)){
+                ticks = data.filter(x=>parseInt(x["quoteVolume"])>=this.volume 
                             && (x["symbol"].endsWith(this.market)) && (parseFloat(x["priceChangePercent"])>=this.priceChange));
-            
+            }
+                        
             ticks.forEach((t)=>{
                 this.topTickers[t["symbol"]] = {
                                                     "volume": parseFloat(t["quoteVolume"]),
@@ -270,7 +280,11 @@ class BinanceReader{
                 this.aggregate(t["symbol"]);
             });
         });
-    
+    }
+
+    getTopSymbols()
+    {
+       this.getSymbols();
     }
 
 

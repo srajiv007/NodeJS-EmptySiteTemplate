@@ -7,6 +7,14 @@ function outputter(writer, params){
     bnb.logger(writer, reader);
 }
 
+function tester(writer, params){
+    let reader = new bnb.binance(params);
+    console.log(params['sym']);
+    reader.getSymbols(params['sym']);
+    bnb.logger(writer, reader);
+}
+
 module.exports = {
-    output: outputter
+    output: outputter,
+    test: tester
 }

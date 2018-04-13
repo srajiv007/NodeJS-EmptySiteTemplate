@@ -45,7 +45,8 @@ http.createServer(function (req, res) {
                     'macd-slow': q['macd-slow'],
                     'macd-fast': q['macd-fast'],
                     'macd-signal': q['macd-signal'],
-                    'methods': methods
+                    'methods': methods,
+                    'sym': q['sym']
                 };
 
     if(req_url.startsWith('/list')){
@@ -56,6 +57,12 @@ http.createServer(function (req, res) {
         //let ints = q['int'] ? q['int'].split(','): [];
         console.log(ints);
         app.output(res, params);
+    }else if(req_url.startsWith('/test')){
+        res.writeHead(200, { 'Content-Type': 'text/plain', 
+                             'Content-Disposition': 'inline',
+                             'Set-Cookie': 'filename='+fname});
+
+        app.test(res, params);
     }else{
         res.write(fs.readFileSync('HTMLPage.html'));
         res.end();
