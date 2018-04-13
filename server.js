@@ -4,6 +4,7 @@ var app = require('./app');
 var uuid = require('uuid/v4');
 var url = require('url');
 var _ = require('underscore');
+var schedule = require('node-schedule');
 
 
 function parseCookies(request) {
@@ -16,6 +17,18 @@ function parseCookies(request) {
     });
 
     return list;
+}
+
+//create instance of job everytime node is up
+var rule = new schedule.RecurrenceRule();
+rule.minute = 42;
+
+function start(){
+    //start job here
+}
+
+function stop(){
+    //stop job here
 }
 
 http.createServer(function (req, res) {
@@ -63,6 +76,8 @@ http.createServer(function (req, res) {
                              'Set-Cookie': 'filename='+fname});
 
         app.test(res, params);
+    }else if(req_url === 'start' || req_url === 'stop'){
+            //start/stop job
     }else{
         res.write(fs.readFileSync('HTMLPage.html'));
         res.end();
