@@ -14,7 +14,7 @@ class Calculator{
 
 
     /** INDICATORS FUNCTIONS (START) **/
-    getMACD(prices, slowPeriod, fastPeriod, signalPeriod)
+    getMACD(prices, fastPeriod, slowPeriod, signalPeriod)
     {
         let input = {
             values: _.pluck(prices, "close"),
@@ -26,7 +26,7 @@ class Calculator{
         };
 
         let d = MACD.calculate(input);
-        //console.log(_.last(d));
+        console.log(_.last(d, 3));
         return {"MACD": _.last(d)};
     }
 

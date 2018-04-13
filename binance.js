@@ -192,7 +192,7 @@ class BinanceReader{
         });
 
         return {
-                "last_close_time": data[data.length-this.lookbackPeriod-1]["close_time"], 
+                "last_close_time": _.last(data)["close_time"], 
                 "prices": prices
             }
     }
@@ -318,9 +318,10 @@ class BinanceReader{
                     let ema12 = calc.getEma(prices, parseInt(s), "short");
                     let ema26 = calc.getEma(prices, parseInt(m), "mid");
                     let ema100 = calc.getEma(prices, parseInt(l), "long");
-                    let stochRsi = calc.getStochRSI(prices, 20, 14, 9, 9, 3);
+                    let stochRsi = calc.getStochRSI(prices, 20, 14, 3, 3, 3);
                     let wr = calc.getWR(prices, this.wrvalues['period']);
-                    let macd = calc.getMACD(prices, this.macd["macd-slow"], this.macd["macd-fast"], this.macd["macd-signal"]);
+                    //let macd = calc.getMACD(prices, this.macd["macd-slow"], this.macd["macd-slow"], this.macd["macd-signal"]);
+                    let macd = calc.getMACD(prices, 12,26,9);
 
                     //console.log(Object.keys(stochRsi));
                     let values = _.extend(ema12, ema26, ema100, stochRsi, wr, macd);
