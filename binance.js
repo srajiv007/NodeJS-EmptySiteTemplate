@@ -7,7 +7,6 @@ var async = require('async');
 var rp = require('request-promise');
 var Table = require('easy-table');
 var uuid = require('uuid/v4');
-var empty = require('is-empty');
 var calc = require('./calculator').Calc;
 
 const BASE_URL = process.env.BASE_URL;
@@ -252,7 +251,7 @@ class BinanceReader{
         let url = BASE_URL+TICK_24HR;
         let ticks = [];
 
-        if(!empty(sym)){
+        if(sym){
             url = url + '?symbol=' + sym;
             ticks.push(sym);
         }
@@ -263,7 +262,7 @@ class BinanceReader{
             //filter(this, body);
             let data = JSON.parse(body);
             //console.log(data.length);
-            if(empty(sym)){
+            if(!sym){
                 ticks = data.filter(x=>parseInt(x["quoteVolume"])>=this.volume 
                             && (x["symbol"].endsWith(this.market)) && (parseFloat(x["priceChangePercent"])>=this.priceChange));
             }

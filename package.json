@@ -13,7 +13,6 @@
     "async": "^2.6.0",
     "dotenv": "^5.0.1",
     "easy-table": "^1.1.1",
-    "is-empty": "^1.2.0",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "technicalindicators": "^1.1.10",

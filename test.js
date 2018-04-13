@@ -1,8 +1,7 @@
 var app = require('./app');
-var empty = require('is-empty');
 
 function test(sym){
-    if(empty(sym)){
+    if(!sym){
         app.output(
             {write: console.log, end: (x)=>console.log('done')}, 
             {'filename':'last_tickers', 'intervals': ['4h']}
