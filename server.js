@@ -39,7 +39,7 @@ http.createServer(function (req, res) {
     ints = ints instanceof Array ? ints : ints.split(',');
     let sort = q['sort'] || [];
     sort = sort instanceof Array ? sort: sort.split(',');
-    let methods = q['methods'] || [];
+    let methods = q['methods'] || ['macd', 'trix'];
     methods = methods instanceof Array ? methods : methods.split(',');
 
     console.log(q);
