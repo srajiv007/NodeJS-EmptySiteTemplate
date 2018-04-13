@@ -292,13 +292,14 @@ class BinanceReader{
         let stochrsi = _.contains(this.methods, 'stochrsi');
         let wr = _.contains(this.methods, 'wr');
         let mcd = _.contains(this.methods, 'macd');
+        let trix = _.contains(this.methods, 'trix');
 
         let wrValue = values['WR%'];
         let stochcheck = values["StochRSI"]>20 && values["StochRSI-"+this.previousPeriod]<=values["StochRSI"];
-        let wrcheck = wrValue>=this.wrvalues['value'];
         let macdSignal = values["MACD"]["signal"];
         let macdValue = values["MACD"]["MACD"];
-        
+        let trixValue = values["TRIX"];
+
         if(
             values["ema-short"]>values["ema-mid"]
             && values["ema-mid"]>values["ema-long"]
@@ -306,8 +307,9 @@ class BinanceReader{
         {
             return true 
                     && (stochrsi ? stochcheck : true) 
-                    && (wr ? wrcheck: true)
-                    && (mcd ? macdSignal > 0 : true);
+                    && (wr ? wrValue>=this.wrvalues['value']: true)
+                    && (mcd ? macdValue > 0 : true)
+                    && (trix ? trixValue >0 : true);
         }
         return false;
     }
@@ -335,9 +337,10 @@ class BinanceReader{
                     let wr = calc.getWR(prices, this.wrvalues['period']);
                     //let macd = calc.getMACD(prices, this.macd["macd-slow"], this.macd["macd-slow"], this.macd["macd-signal"]);
                     let macd = calc.getMACD(prices, 12,26,9);
+                    let trix = calc.getTRIX(prices, 18);
 
                     //console.log(Object.keys(stochRsi));
-                    let values = _.extend(ema12, ema26, ema100, stochRsi, wr, macd);
+                    let values = _.extend(ema12, ema26, ema100, stochRsi, wr, macd, trix);
                     console.log(values);
 
                     this.execMap[sym] = this.execMap[sym]-1;
@@ -346,7 +349,7 @@ class BinanceReader{
                         //add to the object, only if the criteria passes
                         let v = _.omit(values, "MACD", "ema-short", "ema-mid", "ema-long");//remove MACD
                         let w = _.pick(values, "MACD")["MACD"]; //get signal 
-                        this.indicators[sym][x] = _.extend(v, _.pick(w, "MACD"));//display only MACD value
+                        this.indicators[sym][x] = _.extend(v, _.pick(w, "signal"));//display only MACD value
                     }else{
                         delete this.indicators[sym][x];
                     }

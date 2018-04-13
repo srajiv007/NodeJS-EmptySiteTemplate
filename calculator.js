@@ -6,6 +6,7 @@ const EMA = ti.EMA;
 const MACD = ti.MACD;
 const STOCH_RSI = ti.StochasticRSI;
 const WilliamsR = ti.WilliamsR;
+const TRIX = ti.TRIX;
 
 
 class Calculator{
@@ -14,6 +15,18 @@ class Calculator{
 
 
     /** INDICATORS FUNCTIONS (START) **/
+    getTRIX(prices, period)
+    {
+        let d = TRIX.calculate({
+            values: _.pluck(prices, "close"),
+            period: period
+        });
+        //console.log(d);
+
+        return {"TRIX": _.last(d)};
+    }
+
+
     getMACD(prices, fastPeriod, slowPeriod, signalPeriod)
     {
         let input = {
@@ -26,7 +39,7 @@ class Calculator{
         };
 
         let d = MACD.calculate(input);
-        console.log(_.last(d, 3));
+        //console.log(_.last(d, 3));
         return {"MACD": _.last(d)};
     }
 
