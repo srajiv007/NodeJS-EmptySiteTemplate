@@ -132,8 +132,11 @@ class BinanceLogger{
         writer.write("=== losers (from previous run) === \n");
         this.printList(_.uniq(_.difference(readerInstance.last_tickers, readerInstance.fileTickers)));
 
-        writer.write("\n==== details ======\n");
-        writer.write(Table.print(readerInstance.tableIndicators));
+        if(writer.logDetail){
+            writer.write("\n==== details ======\n");
+            writer.write(Table.print(readerInstance.tableIndicators));
+        }
+
         writer.end();
     }
 }

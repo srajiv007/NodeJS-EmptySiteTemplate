@@ -5,6 +5,7 @@ var uuid = require('uuid/v4');
 var url = require('url');
 var _ = require('underscore');
 var schedule = require('node-schedule');
+var slack = require('./slack').SlackWriter;
 
 
 function parseCookies(request) {
@@ -20,19 +21,50 @@ function parseCookies(request) {
 }
 
 //create instance of job everytime node is up
-var rule = new schedule.RecurrenceRule();
-rule.minute = 42;
 
-function start(){
+var job = undefined;
+
+const JOB_PARAMS = {
+    'filename': uuid(), 
+    'intervals': ["30m", "4h"], 
+    'ema-short': 12,
+    'ema-mid': 26,
+    'ema-long': 100,
+    'volume': 5000,
+    'market': "BTC",
+    'sort': "vol",
+    'priceChange': 3,
+    'wr-cutoff': -50,
+    'wr-period': 14,
+    'macd-slow': 26,
+    'macd-fast': 12,
+    'macd-signal': 9,
+    'methods': ['macd', 'trix']
+};
+
+function start(minute){
     //start job here
+    console.log("starting...");
+    let f = "*/" + minute + " * * * *"; //cron format
+    console.log(f);
+
+    job = schedule.scheduleJob(f, function(){
+        app.output(slack, JOB_PARAMS);
+    });
 }
 
 function stop(){
     //stop job here
+    console.log("stopping...");
+    if(job){
+        job.cancel();
+    }
 }
 
 http.createServer(function (req, res) {
     let req_url = req.url;
+    console.log(req_url);
+
     let q = url.parse(req_url, true).query;
     let fname = parseCookies(req)["filename"] || uuid();
     let ints = _.isEmpty(q['int']) ? []: q['int'];
@@ -69,15 +101,23 @@ http.createServer(function (req, res) {
                              
         //let ints = q['int'] ? q['int'].split(','): [];
         console.log(ints);
+        res.logDetail = true;
         app.output(res, params);
     }else if(req_url.startsWith('/test')){
         res.writeHead(200, { 'Content-Type': 'text/plain', 
                              'Content-Disposition': 'inline',
                              'Set-Cookie': 'filename='+fname});
 
+        res.logDetail = true;
         app.test(res, params);
-    }else if(req_url === 'start' || req_url === 'stop'){
+    }else if(req_url.startsWith('/start')){
             //start/stop job
+            let min = q['min'] || 30;
+            start(min);
+            res.end('Job scheduled to run every - ' + min +" minute. To stop hit the /stop url");
+    }else if (req_url.startsWith('/stop')){
+        stop();
+        res.end('Stopped');
     }else{
         res.write(fs.readFileSync('HTMLPage.html'));
         res.end();
