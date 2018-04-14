@@ -23,6 +23,7 @@ class SlackWriter{
                 console.log('Message sent : ', res);
             }
         });
+        this.messageBuf = '';
     }
 }
 
