@@ -45,12 +45,14 @@ const JOB_PARAMS = {
 function start(minute){
     //start job here
     console.log("starting...");
-    let f = "*/" + minute + " * * * *"; //cron format
-    console.log(f);
-
-    job = schedule.scheduleJob(f, function(){
-        app.output(slack, JOB_PARAMS);
-    });
+    if(!job){
+        let f = "*/" + minute + " * * * *"; //cron format
+        console.log(f);
+        job = schedule.scheduleJob(f, function(){
+            app.output(slack, JOB_PARAMS);
+        });
+    }
+    
 }
 
 function stop(){
