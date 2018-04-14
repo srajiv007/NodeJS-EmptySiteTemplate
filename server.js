@@ -26,11 +26,11 @@ var job = undefined;
 
 const JOB_PARAMS = {
     'filename': uuid(), 
-    'intervals': ["30m", "4h"], 
+    'intervals': ["2h", "6h"], 
     'ema-short': 12,
     'ema-mid': 26,
     'ema-long': 100,
-    'volume': 5000,
+    'volume': 3000,
     'market': "BTC",
     'sort': "vol",
     'priceChange': 3,

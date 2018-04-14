@@ -69,6 +69,16 @@ class Calculator{
         return ema;
     }
 
+    getLastEmaCrossover(period, mid, long)
+    {
+        let values = _.pluck(prices, "close");
+        let d1 = EMA.calculate({period: mid, values: values});
+        let d2 = EMA.calculate({period: long, values: values});
+
+        
+
+    }
+
     getSma(prices, period, name)
     {
         let values = _.pluck(prices, "close");

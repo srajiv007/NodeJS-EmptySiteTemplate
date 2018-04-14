@@ -304,7 +304,7 @@ class BinanceReader{
         let trixValue = values["TRIX"];
 
         if(
-            values["ema-short"]>values["ema-mid"]
+            values["ema-short"]>values["ema-long"]
             && values["ema-mid"]>values["ema-long"]
         )
         {
