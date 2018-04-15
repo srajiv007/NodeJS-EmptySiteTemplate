@@ -147,7 +147,7 @@ class BinanceLogger{
         
         let to = this.getTableObj(finalTickers, 
                                 readerInstance.topTickers, 
-                            [["priceChange", "(24hr)%change"], ["priceChangeLastCrossOver", "(crossover)%change"]]
+                            [["priceChange", "(24hr)%"], ["priceChangeLastCrossOver", "(crossover)%"]]
                         );
 
         //console.log(utable);
@@ -156,7 +156,7 @@ class BinanceLogger{
         writer.write("\n==== (recent crossovers) ====\n");
         let co = this.getTableObj(sortBy(finalTickers, readerInstance.topTickers, "lastCrossOverTime").reverse(), 
             readerInstance.topTickers, 
-                    [["lastCrossOverDate", "Crossover Date"], ["priceChangeLastCrossOver", "%change"]]
+                    [["lastCrossOverDate", "(crossover)Date"], ["priceChangeLastCrossOver", "%change"]]
             );
        
         writer.write(Table.print(co));
