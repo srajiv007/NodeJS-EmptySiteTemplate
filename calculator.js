@@ -97,9 +97,9 @@ class Calculator{
             //[ last-crossover, current ]
             let close = _.pluck([last, curr], "close");
             let d = ((close[1]/close[0])-1)*100;
-            return {"priceChangeLastCrossOver" : d.toPrecision(6).toString()} ;
+            return {"priceChangeLastCrossOver" : d.toPrecision(6)} ;
         }
-        return {"priceChangeLastCrossOver" : "NO BACK DATA" } ;
+        return {"priceChangeLastCrossOver" : "NO AVL DATA" } ;
     }
 
     getSma(prices, period, name)
