@@ -97,7 +97,12 @@ class Calculator{
             //[ last-crossover, current ]
             let close = _.pluck([last, curr], "close");
             let d = ((close[1]/close[0])-1)*100;
-            return {"priceChangeLastCrossOver" : d.toPrecision(6)} ;
+            let velocity = (d*10^5)/(curr["close_time"]-last["close_time"]);
+            console.log(velocity);
+
+            return {"priceChangeLastCrossOver" : Number.parseFloat(d.toPrecision(6)), "lastCrossOverTime": last["close_time"].valueOf(), 
+                    "lastCrossOverDate": last["close_time"].toDateString(), 
+                    "velocity": velocity} ;
         }
         return {"priceChangeLastCrossOver" : "NO AVL DATA" } ;
     }

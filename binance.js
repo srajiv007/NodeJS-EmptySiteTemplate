@@ -93,6 +93,24 @@ class BinanceLogger{
         });
     }
 
+    getTableObj(ticks, map, keys){
+        //keys = [actual, display]
+        let k = _.map(keys, (x)=>x[0]);
+        let n = _.map(keys, (x)=>x[1]);
+        n.push("ticker");
+    
+        let kl = _.map(ticks, (t)=>{
+            let v = _.pick(map[t], k);
+            v["ticker"] = t;
+            let nl = _.unzip(_.pairs(v));
+            let values = nl[1];
+            console.log(nl);
+            console.log(n);
+            return _.object(_.zip(n, values));
+        });
+        return kl;
+    }
+
     writeData(){
         let gainers = [];
         let losers = [];
@@ -126,15 +144,25 @@ class BinanceLogger{
         }
 
         finalTickers = finalTickers.reverse();
-        let ulist = _.zip(finalTickers,
-                            _.map(finalTickers, (f)=>readerInstance.topTickers[f]["priceChange"]+"%"),
-                            _.map(finalTickers, (f)=>readerInstance.topTickers[f]["priceChangeLastCrossOver"]+"%")
-                    );
-        let utable = _.map(ulist, (x)=>{
-            return {"ticker": x[0], "(24hr)%change": x[1], "(crossover)%change": x[2]};
-        });
+        
+        let to = this.getTableObj(finalTickers, 
+                                readerInstance.topTickers, 
+                            [["priceChange", "(24hr)%change"], ["priceChangeLastCrossOver", "(crossover)%change"]]
+                        );
+
         //console.log(utable);
-        writer.write(Table.print(utable));
+        writer.write(Table.print(to));
+
+        writer.write("\n==== (recent crossovers) ====\n");
+        let co = this.getTableObj(sortBy(finalTickers, readerInstance.topTickers, "lastCrossOverTime").reverse(), 
+            readerInstance.topTickers, 
+                    [["lastCrossOverDate", "Previous Crossover Date"], ["priceChangeLastCrossOver", "%change"]]
+            );
+       
+        writer.write(Table.print(co));
+
+        writer.write("\n=== Trajectories (sorted) ====\n");
+        this.printList(sortBy(finalTickers, readerInstance.topTickers, "velocity").reverse());
 
         writer.write("\n=== newcomers (from previous run) === \n");
         this.printList(_.uniq(_.difference(readerInstance.fileTickers, readerInstance.last_tickers)));
@@ -223,13 +251,13 @@ class BinanceReader{
             let close_prices = [];
             
             data.forEach(element => {
-                let open_time = new Date(parseInt(element[0])).toLocaleString("en-US");
+                let open_time = new Date(parseInt(element[0]));
                 let open = parseFloat(element[1]);
                 let high = element[2];
                 let low = element[3];
                 let close = parseFloat(element[4]);
                 let vol = element[5]
-                let close_time = new Date(parseInt(element[6])).toLocaleString("en-US");
+                let close_time = new Date(parseInt(element[6]));
                 
                 close_prices.push(close);
 
@@ -360,7 +388,7 @@ class BinanceReader{
                         console.log("Crossover ["+sym + "]");
                         var priceCO = calc.getPriceChangeLastCrossover(prices, 26, 100);
                         //values = _.extend(values, priceCO);
-                        this.topTickers[sym]["priceChangeLastCrossOver"] = priceCO["priceChangeLastCrossOver"];
+                        this.topTickers[sym] = _.extend(this.topTickers[sym], priceCO);
                     }
                     
                     //console.log(values);

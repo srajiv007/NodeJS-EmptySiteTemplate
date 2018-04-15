@@ -32,7 +32,7 @@ const JOB_PARAMS = {
     'ema-long': 100,
     'volume': 3000,
     'market': "BTC",
-    'sort': "vol",
+    'sort': "change",
     'priceChange': 3,
     'wr-cutoff': -50,
     'wr-period': 14,
