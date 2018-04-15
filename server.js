@@ -26,7 +26,7 @@ var job = undefined;
 
 const JOB_PARAMS = {
     'filename': uuid(), 
-    'intervals': ["2h", "6h"], 
+    'intervals': ["1h", "4h"], 
     'ema-short': 12,
     'ema-mid': 26,
     'ema-long': 100,
