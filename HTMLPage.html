@@ -24,7 +24,7 @@
 <form id="form1" action="/list">
 
     Volume:<input type="text" name="volume" value="2500"></input><br><br>
-    24hr change(% value)<input type="text" name="valuechange" value="2"></input>
+   
     <br>
     <br>
     <fieldset>
@@ -41,7 +41,9 @@
         15m:<input type="checkbox" value="15m" name="int">
         30m:<input type="checkbox" value="30m" name="int">
         1h:<input type="checkbox" value="1h" name="int">
+        2h:<input type="checkbox" value="2h" name="int">
         4h:<input type="checkbox" value="4h" name="int">
+        6h:<input type="checkbox" value="6h" name="int">
         1d:<input type="checkbox" value="1d" name="int">
     </fieldset>
     <fieldset>
@@ -79,7 +81,8 @@
         <legend>Output (sort by)</legend>
             <select name="sort">
                 <option value="vol">Volume</option>
-                <option value="price">24hr % change</option>    
+                <option value="price">% change - 24hr</option>    
+                <option value="change">% change - crossover</option>    
             </select>
     </fieldset>
 </form>

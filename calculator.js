@@ -69,14 +69,37 @@ class Calculator{
         return ema;
     }
 
-    getLastEmaCrossover(period, mid, long)
+    getLastEmaCrossover(prices, mid, long)
     {
+        //prices: recent first
         let values = _.pluck(prices, "close");
-        let d1 = EMA.calculate({period: mid, values: values});
-        let d2 = EMA.calculate({period: long, values: values});
+        let emid = EMA.calculate({period: mid, values: values}).reverse();//recent last
+        let elong = EMA.calculate({period: long, values: values}).reverse();
+        //26 > 100
+        let d = _.map(_.zip(emid, elong), (x)=>x[0]>x[1]?1:0);
+        let i = _.indexOf(d, 0);
+        //console.log(i, emid[i], elong[i], prices[prices.length-i]["close_time"], _.last(prices)["close_time"]);
+        //console.log(_.first(emid), _.first(elong));//correct
+        return i;
+    }
 
-        
+    getPriceChangeLastCrossover(prices, mid, long)
+    {
+        let index = this.getLastEmaCrossover(prices, mid, long);
+        let l = prices.length;
+        let p = prices.reverse();
 
+        if(index>=0){
+            let last = p[index];
+            let curr = _.first(p);
+            console.log(last, curr);
+
+            //[ last-crossover, current ]
+            let close = _.pluck([last, curr], "close");
+            let d = ((close[1]/close[0])-1)*100;
+            return {"priceChangeLastCrossOver" : d.toPrecision(6).toString()} ;
+        }
+        return {"priceChangeLastCrossOver" : "NO BACK DATA" } ;
     }
 
     getSma(prices, period, name)

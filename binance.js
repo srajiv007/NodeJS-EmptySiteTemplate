@@ -121,10 +121,20 @@ class BinanceLogger{
             finalTickers = sortBy(finalTickers, readerInstance.topTickers, "priceChange");
         }
 
+        if(_.contains(readerInstance.sort, "change")){
+            finalTickers = sortBy(finalTickers, readerInstance.topTickers, "priceChangeLastCrossOver");
+        }
+
         finalTickers = finalTickers.reverse();
-        this.printList(_.zip(finalTickers, _.map(finalTickers, function(x){
-            return readerInstance.topTickers[x]["priceChange"]+"%";
-        })));
+        let ulist = _.zip(finalTickers,
+                            _.map(finalTickers, (f)=>readerInstance.topTickers[f]["priceChange"]+"%"),
+                            _.map(finalTickers, (f)=>readerInstance.topTickers[f]["priceChangeLastCrossOver"]+"%")
+                    );
+        let utable = _.map(ulist, (x)=>{
+            return {"ticker": x[0], "(24hr)%change": x[1], "(crossover)%change": x[2]};
+        });
+        //console.log(utable);
+        writer.write(Table.print(utable));
 
         writer.write("\n=== newcomers (from previous run) === \n");
         this.printList(_.uniq(_.difference(readerInstance.fileTickers, readerInstance.last_tickers)));
@@ -153,11 +163,12 @@ class BinanceReader{
         this.methods = params['methods'];
         this.emaintervals = {'ema-short': params['ema-short'], 'ema-mid': params['ema-mid'], 'ema-long': params['ema-long']};
         this.macd = {'macd-slow': params['macd-slow']||26,'macd-fast': params['macd-fast']||12,'macd-signal': params['macd-signal']||9};
-        console.log(this.macd);
+        
 
         this.topTickers = {};
         this.intervals = _.isEmpty(ints)?["1h", "4h"]:ints;
         //this.intervals = ["1h", "4h"];
+        this.maxInterval = _.last(this.intervals);
         this.fileTickers = [];
         this.tableIndicators = [];
         this.execMap = {};
@@ -267,7 +278,7 @@ class BinanceReader{
             //console.log(data.length);
             if(!sym){
                 ticks = data.filter(x=>parseInt(x["quoteVolume"])>=this.volume 
-                            && (x["symbol"].endsWith(this.market)) && (parseFloat(x["priceChangePercent"])>=this.priceChange));
+                            && (x["symbol"].endsWith(this.market)));
             }
                         
             ticks.forEach((t)=>{
@@ -343,9 +354,16 @@ class BinanceReader{
                     let trix = calc.getTRIX(prices, 18);
 
                     //console.log(Object.keys(stochRsi));
-                    let values = _.extend(ema12, ema26, ema100, stochRsi, wr, macd, trix);
-                    console.log(values);
-
+                    let values = _.extend(ema12, ema26, ema100, stochRsi, wr, macd, trix, priceCO);
+                    
+                    if(_.isEqual(x, this.maxInterval)){
+                        console.log("Crossover ["+sym + "]");
+                        var priceCO = calc.getPriceChangeLastCrossover(prices, 26, 100);
+                        //values = _.extend(values, priceCO);
+                        this.topTickers[sym]["priceChangeLastCrossOver"] = priceCO["priceChangeLastCrossOver"];
+                    }
+                    
+                    //console.log(values);
                     this.execMap[sym] = this.execMap[sym]-1;
                     
                     if(this.checkIndicators(values)){
