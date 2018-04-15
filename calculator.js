@@ -98,10 +98,10 @@ class Calculator{
             let close = _.pluck([last, curr], "close");
             let d = ((close[1]/close[0])-1)*100;
             let velocity = (d*10^5)/(curr["close_time"]-last["close_time"]);
-            console.log(velocity);
+            //console.log(velocity);
 
-            return {"priceChangeLastCrossOver" : Number.parseFloat(d.toPrecision(6)), "lastCrossOverTime": last["close_time"].valueOf(), 
-                    "lastCrossOverDate": last["close_time"].toDateString(), 
+            return {"priceChangeLastCrossOver" : Number.parseFloat(d).toFixed(2), "lastCrossOverTime": last["close_time"].valueOf(), 
+                    "lastCrossOverDate": last["close_time"].toLocaleDateString("en-US"), 
                     "velocity": velocity} ;
         }
         return {"priceChangeLastCrossOver" : "NO AVL DATA" } ;

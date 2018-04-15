@@ -312,7 +312,7 @@ class BinanceReader{
             ticks.forEach((t)=>{
                 this.topTickers[t["symbol"]] = {
                                                     "volume": parseFloat(t["quoteVolume"]),
-                                                    "priceChange": parseFloat(t["priceChangePercent"])
+                                                    "priceChange": parseFloat(t["priceChangePercent"]).toFixed(2)
                                                 };
 
                 this.execMap[t["symbol"]] = this.intervals.length;
