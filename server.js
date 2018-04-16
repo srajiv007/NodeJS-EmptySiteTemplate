@@ -26,7 +26,7 @@ var job = undefined;
 
 const JOB_PARAMS = {
     'filename': uuid(), 
-    'intervals': ["1h", "4h"], 
+    'intervals': ["2h", "6h"], 
     'ema-short': 12,
     'ema-mid': 26,
     'ema-long': 100,
@@ -39,7 +39,7 @@ const JOB_PARAMS = {
     'macd-slow': 26,
     'macd-fast': 12,
     'macd-signal': 9,
-    'methods': ['macd', 'trix']
+    'methods': ['wr, macd', 'trix']
 };
 
 function start(minute){
