@@ -39,7 +39,7 @@ const JOB_PARAMS = {
     'macd-slow': 26,
     'macd-fast': 12,
     'macd-signal': 9,
-    'methods': ['wr, macd', 'trix']
+    'methods': ['wr', 'macd', 'trix']
 };
 
 function start(minute){
