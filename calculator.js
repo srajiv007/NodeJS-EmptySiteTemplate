@@ -100,7 +100,7 @@ class Calculator{
             let velocity = (d*10^5)/(curr["close_time"]-last["close_time"]);
             //console.log(velocity);
 
-            return {"priceChangeLastCrossOver" : Number.parseFloat(d).toFixed(2), "lastCrossOverTime": last["close_time"].valueOf(), 
+            return {"priceChangeLastCrossOver" : Number.parseFloat(d.toFixed(2)), "lastCrossOverTime": last["close_time"].valueOf(), 
                     "lastCrossOverDate": last["close_time"].toLocaleDateString("en-US"), 
                     "velocity": velocity} ;
         }
