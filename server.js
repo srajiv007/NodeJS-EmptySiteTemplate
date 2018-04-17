@@ -26,20 +26,20 @@ var job = undefined;
 
 const JOB_PARAMS = {
     'filename': uuid(), 
-    'intervals': ["2h", "6h"], 
-    'ema-short': 12,
-    'ema-mid': 26,
-    'ema-long': 100,
+    'intervals': ["4h"], 
+    'ema-short': 7,
+    'ema-mid': 25,
+    'ema-long': 99,
     'volume': 3000,
     'market': "BTC",
     'sort': "change",
     'priceChange': 3,
     'wr-cutoff': -50,
-    'wr-period': 14,
+    'wr-period': 20,
     'macd-slow': 26,
     'macd-fast': 12,
     'macd-signal': 9,
-    'methods': ['wr', 'macd', 'trix']
+    'methods': ['macd', 'trix']
 };
 
 function start(minute){
@@ -115,8 +115,15 @@ http.createServer(function (req, res) {
     }else if(req_url.startsWith('/start')){
             //start/stop job
             let min = q['min'] || 30;
-            start(min);
-            res.end('Job scheduled to run every - ' + min +" minute. To stop hit the /stop url");
+            
+            if(job){                
+                stop();
+                res.end("Stopped previous run. Rescheduling for [" + min + "] th minute.");
+            }else{
+                start(min);
+                res.end('Job scheduled to run every - ' + min +"th minute.");
+            }
+            
     }else if (req_url.startsWith('/stop')){
         stop();
         res.end('Stopped');
