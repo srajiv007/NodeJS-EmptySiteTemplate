@@ -83,6 +83,20 @@ class Calculator{
         return i;
     }
 
+    getPriceChangePerc(curr, last)
+    {
+        let close = _.pluck([last, curr], "close");
+        let d = ((close[1]/close[0])-1)*100;
+        return d;
+    }
+
+    getRateOfPriceChange(curr, last)
+    {
+        let d = this.getPriceChangePerc(curr, last);
+        let velocity = (d*10^5)/(curr["close_time"]-last["close_time"]);
+        return velocity;
+    }
+
     getPriceChangeLastCrossover(prices, mid, long)
     {
         let index = this.getLastEmaCrossover(prices, mid, long);
@@ -95,9 +109,8 @@ class Calculator{
             console.log(last, curr);
 
             //[ last-crossover, current ]
-            let close = _.pluck([last, curr], "close");
-            let d = ((close[1]/close[0])-1)*100;
-            let velocity = (d*10^5)/(curr["close_time"]-last["close_time"]);
+            let d = this.getPriceChangePerc(curr, last);
+            let velocity = this.getRateOfPriceChange(curr, last);
             //console.log(velocity);
 
             return {"priceChangeLastCrossOver" : Number.parseFloat(d.toFixed(2)), "lastCrossOverTime": last["close_time"].valueOf(), 
