@@ -59,8 +59,14 @@ function stop(){
     //stop job here
     console.log("stopping...");
     if(job){
-        job.cancel();
+        job.cancel();        
     }
+}
+
+function restart(min){
+    stop();
+    job=undefined;
+    start(min);
 }
 
 http.createServer(function (req, res) {
@@ -117,13 +123,13 @@ http.createServer(function (req, res) {
             let min = q['min'] || 30;
             
             if(job){                
-                stop();
-                res.end("Stopped previous run. Rescheduling for [" + min + "] th minute.");
+                restart();
+                res.end("Stopped previous run. Rescheduling for every [" + min + "]  minute.");
             }else{
                 start(min);
-                res.end('Job scheduled to run every - ' + min +"th minute.");
+                res.end('Job scheduled to run every [' + min +"] minute.");
             }
-            
+
     }else if (req_url.startsWith('/stop')){
         stop();
         res.end('Stopped');

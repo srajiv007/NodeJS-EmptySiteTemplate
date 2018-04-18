@@ -19,6 +19,13 @@ function sortBy(list, map, key){
     });
 }
 
+function printList(list, writer){
+    list.forEach((x)=>{
+        writer.write(x.toString().replace(/,/g,'   '));
+        writer.write("\n");
+    });
+}
+
 
 function log(writer, readerInstance){
     //wait while all indicators are collected
@@ -85,13 +92,7 @@ class BinanceLogger{
         });//forEach
     }
 
-    printList(list){
-        let writer = this.writer;
-        list.forEach((x)=>{
-            writer.write(x.toString().replace(/,/g,'   '));
-            writer.write("\n");
-        });
-    }
+    
 
     getTableObj(ticks, map, keys){
         //keys = [actual, display]
@@ -162,13 +163,13 @@ class BinanceLogger{
         writer.write(Table.print(co));
 
         writer.write("\n=== Trajectories (sorted) ====\n");
-        this.printList(sortBy(finalTickers, readerInstance.topTickers, "velocity").reverse());
+        printList(sortBy(finalTickers, readerInstance.topTickers, "velocity").reverse(), writer);
 
         writer.write("\n=== newcomers (from previous run) === \n");
-        this.printList(_.uniq(_.difference(readerInstance.fileTickers, readerInstance.last_tickers)));
+        printList(_.uniq(_.difference(readerInstance.fileTickers, readerInstance.last_tickers)), writer);
 
         writer.write("=== losers (from previous run) === \n");
-        this.printList(_.uniq(_.difference(readerInstance.last_tickers, readerInstance.fileTickers)));
+        printList(_.uniq(_.difference(readerInstance.last_tickers, readerInstance.fileTickers)), writer);
 
         if(writer.logDetail){
             writer.write("\n==== details ======\n");
