@@ -123,7 +123,7 @@ http.createServer(function (req, res) {
             let min = q['min'] || 30;
             
             if(job){                
-                restart();
+                restart(min);
                 res.end("Stopped previous run. Rescheduling for every [" + min + "]  minute.");
             }else{
                 start(min);
@@ -138,4 +138,4 @@ http.createServer(function (req, res) {
         res.end();
     }
     
-}).listen(process.env.PORT || 8080);
+}).listen(process.env.PORT || 5555);
